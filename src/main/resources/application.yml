@@ -1,14 +1,3 @@
-#spring.application.name=demo
-server:
-  port: 8080
-
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/admin_db?useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-mybatis:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.example.entity
+  profiles:
+    active:  dev
