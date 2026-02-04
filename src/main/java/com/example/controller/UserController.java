@@ -25,7 +25,7 @@ public class UserController {
         );
 
         if(dbUser == null){
-            return Result.fail("账号或密码错误"); 
+            return Result.fail("账号或密码错误");
         }
 
         return Result.ok(dbUser);
