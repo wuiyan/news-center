@@ -50,19 +50,15 @@ public class UserController {
 
     // 获取个人信息
     @GetMapping("/me")
-    public Result getMyInfo(HttpServletRequest request){
+    public Result me(HttpServletRequest request){
 
-        Integer userId =
-                (Integer) request.getAttribute("userId");
+        Object uid = request.getAttribute("userId");
 
-        User user = userService.getById(userId);
+        System.out.println("Controller userId = " + uid);
 
-        if(user == null){
-            return Result.fail("用户不存在");
-        }
-
-        return Result.ok(user);
+        return Result.ok(userService.getById((Integer) uid));
     }
+
 
 
     // 修改个人信息
