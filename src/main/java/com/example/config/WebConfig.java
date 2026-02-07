@@ -19,10 +19,19 @@ public class WebConfig implements WebMvcConfigurer {
                 // 拦截所有
                 .addPathPatterns("/api/**")
 
-                // 放行登录注册
+                // 放行登录注册和上传
                 .excludePathPatterns(
                         "/api/user/login",
-                        "/api/user/register"
+                        "/api/user/register",
+                        "/api/upload/**",
+                        "/api/category/**",
+                        "/uploads/**"
                 );
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:D:/uploads/");
     }
 }
