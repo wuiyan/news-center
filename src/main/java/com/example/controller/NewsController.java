@@ -21,10 +21,12 @@ public class NewsController {
     public Result list(
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(defaultValue = "10") Integer size,
+            HttpServletRequest request) {
 
+        Integer userId = (Integer) request.getAttribute("userId");
         return Result.ok(
-                newsService.pageList(category, page, size)
+                newsService.pageList(category, page, size, userId)
         );
     }
     // ⭐ 详情接口
@@ -32,6 +34,7 @@ public class NewsController {
     @GetMapping("detail/{id}")
     public Result detail(@PathVariable Integer id, HttpServletRequest request) {
         Integer userId = (Integer) request.getAttribute("userId");
+        newsService.incViewCount(id);
         return Result.ok(newsService.getDetailWithLikeStatus(id, userId));
     }
     //点赞
@@ -83,6 +86,18 @@ public class NewsController {
     public Result publish(@RequestBody AddNewsRequest request) {
         newsService.publish(request);
         return Result.ok();
+    }
+
+    /**
+     * 我的作品（获赞量、浏览量统计）
+     */
+    @GetMapping("/my-works")
+    public Result myWorks(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        return Result.ok(newsService.getMyWorks(userId, page, size));
     }
 
 }

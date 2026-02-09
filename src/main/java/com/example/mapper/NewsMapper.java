@@ -120,6 +120,51 @@ public interface NewsMapper {
      */
     @Select("SELECT LAST_INSERT_ID()")
     Long lastInsertId();
+
+    /**
+     * 查询用户发布的作品列表
+     */
+    @Select("""
+        SELECT
+            id,
+            category,
+            title,
+            summary,
+            views,
+            comments,
+            likes,
+            publish_time AS publishTime,
+            cover
+        FROM news
+        WHERE user_id = #{userId}
+        ORDER BY id DESC
+        LIMIT #{offset},#{size}
+    """)
+    List<NewsVO> selectByUserId(
+            @Param("userId") Integer userId,
+            @Param("offset") Integer offset,
+            @Param("size") Integer size
+    );
+
+    /**
+     * 查询用户发布的作品总数
+     */
+    @Select("""
+        SELECT COUNT(*)
+        FROM news
+        WHERE user_id = #{userId}
+    """)
+    Long countByUserId(@Param("userId") Integer userId);
+
+    /**
+     * 浏览量 +1
+     */
+    @Update("""
+        UPDATE news
+        SET views = IFNULL(views, 0) + 1
+        WHERE id = #{id}
+    """)
+    void addView(Integer id);
 }
 
 

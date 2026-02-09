@@ -24,4 +24,6 @@ public class News {
     private String publishTime;
 
     private String cover;
+
+    private Integer userId;
 }

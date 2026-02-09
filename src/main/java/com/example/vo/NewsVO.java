@@ -22,4 +22,6 @@ public class NewsVO {
     private String publishTime;
 
     private String cover;
+
+    private Boolean isLiked;
 }

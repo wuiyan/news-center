@@ -48,12 +48,17 @@ public class NewsServiceImpl implements NewsService {
     private NewsCollectMapper newsCollectMapper;
 
     @Override
-    public Map<String, Object> pageList(String category, Integer page, Integer size) {
+    public Map<String, Object> pageList(String category, Integer page, Integer size, Integer userId) {
 
         int offset = (page - 1) * size;
 
         List<NewsVO> list =
                 newsMapper.selectPage(category, offset, size);
+
+        for (NewsVO vo : list) {
+            Integer likeCount = newsLikeMapper.count(userId, vo.getId().intValue());
+            vo.setIsLiked(likeCount > 0);
+        }
 
         Long total =
                 newsMapper.count(category);
@@ -163,6 +168,32 @@ public class NewsServiceImpl implements NewsService {
         news.setLikes("0");
         news.setComments("0");
         newsMapper.insert(news);
+    }
+
+    @Override
+    public Map<String, Object> getMyWorks(Integer userId, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<NewsVO> list = newsMapper.selectByUserId(userId, offset, size);
+        Long total = newsMapper.countByUserId(userId);
+
+        int totalViews = 0;
+        int totalLikes = 0;
+        for (NewsVO vo : list) {
+            totalViews += parseViewCount(vo.getViews());
+            totalLikes += parseViewCount(vo.getLikes());
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", total);
+        map.put("totalViews", totalViews);
+        map.put("totalLikes", totalLikes);
+        map.put("list", list);
+        return map;
+    }
+
+    @Override
+    public void incViewCount(Integer newsId) {
+        newsMapper.addView(newsId);
     }
 
 }
