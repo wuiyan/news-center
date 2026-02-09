@@ -15,18 +15,23 @@ public interface NewsMapper {
      */
     @Select("""
         SELECT
-            id,
-            category,
-            title,
-            summary,
-            views,
-            comments,
-            likes,
-            publish_time AS publishTime,
-            cover
-        FROM news
-        WHERE (#{category} IS NULL OR category = #{category})
-        ORDER BY id DESC
+            n.id,
+            n.category,
+            n.title,
+            n.summary,
+            n.views,
+            n.comments,
+            CAST(n.likes AS UNSIGNED) AS likes,
+            n.publish_time AS publishTime,
+            n.cover,
+            n.user_id AS userId,
+            u.name AS userName,
+            u.avatar AS userAvatar,
+            (SELECT COUNT(*) FROM news_collect c WHERE c.news_id = n.id) AS collectCount
+        FROM news n
+        LEFT JOIN user u ON n.user_id = u.id
+        WHERE (#{category} IS NULL OR n.category = #{category})
+        ORDER BY n.id DESC
         LIMIT #{offset},#{size}
     """)
     List<NewsVO> selectPage(
@@ -46,7 +51,26 @@ public interface NewsMapper {
     """)
     Long count(@Param("category") String category);
 
-    @Select("SELECT * FROM news WHERE id = #{id}")
+    @Select("""
+        SELECT
+            n.id,
+            n.category,
+            n.title,
+            n.summary,
+            n.content,
+            n.views,
+            n.comments,
+            CAST(n.likes AS UNSIGNED) AS likes,
+            n.publish_time AS publishTime,
+            n.cover,
+            n.user_id AS userId,
+            u.name AS userName,
+            u.avatar AS userAvatar,
+            (SELECT COUNT(*) FROM news_collect c WHERE c.news_id = n.id) AS collectCount
+        FROM news n
+        LEFT JOIN user u ON n.user_id = u.id
+        WHERE n.id = #{id}
+    """)
     News selectById(Integer id);
 
     // 点赞 +1（整数）
@@ -74,20 +98,25 @@ public interface NewsMapper {
      */
     @Select("""
         SELECT
-            id,
-            category,
-            title,
-            summary,
-            views,
-            comments,
-            likes,
-            publish_time AS publishTime,
-            cover
-        FROM news
-        WHERE title LIKE CONCAT('%', #{keyword}, '%')
-           OR summary LIKE CONCAT('%', #{keyword}, '%')
-           OR content LIKE CONCAT('%', #{keyword}, '%')
-        ORDER BY id DESC
+            n.id,
+            n.category,
+            n.title,
+            n.summary,
+            n.views,
+            n.comments,
+            CAST(n.likes AS UNSIGNED) AS likes,
+            n.publish_time AS publishTime,
+            n.cover,
+            n.user_id AS userId,
+            u.name AS userName,
+            u.avatar AS userAvatar,
+            (SELECT COUNT(*) FROM news_collect c WHERE c.news_id = n.id) AS collectCount
+        FROM news n
+        LEFT JOIN user u ON n.user_id = u.id
+        WHERE n.title LIKE CONCAT('%', #{keyword}, '%')
+           OR n.summary LIKE CONCAT('%', #{keyword}, '%')
+           OR n.content LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY n.id DESC
         LIMIT #{offset},#{size}
     """)
     List<NewsVO> search(@Param("keyword") String keyword,
@@ -126,18 +155,23 @@ public interface NewsMapper {
      */
     @Select("""
         SELECT
-            id,
-            category,
-            title,
-            summary,
-            views,
-            comments,
-            likes,
-            publish_time AS publishTime,
-            cover
-        FROM news
-        WHERE user_id = #{userId}
-        ORDER BY id DESC
+            n.id,
+            n.category,
+            n.title,
+            n.summary,
+            n.views,
+            n.comments,
+            CAST(n.likes AS UNSIGNED) AS likes,
+            n.publish_time AS publishTime,
+            n.cover,
+            n.user_id AS userId,
+            u.name AS userName,
+            u.avatar AS userAvatar,
+            (SELECT COUNT(*) FROM news_collect c WHERE c.news_id = n.id) AS collectCount
+        FROM news n
+        LEFT JOIN user u ON n.user_id = u.id
+        WHERE n.user_id = #{userId}
+        ORDER BY n.id DESC
         LIMIT #{offset},#{size}
     """)
     List<NewsVO> selectByUserId(
@@ -165,6 +199,40 @@ public interface NewsMapper {
         WHERE id = #{id}
     """)
     void addView(Integer id);
+
+    @Select("""
+        SELECT
+            n.id,
+            n.category,
+            n.title,
+            n.summary,
+            n.views,
+            n.comments,
+            CAST(n.likes AS UNSIGNED) AS likes,
+            n.publish_time AS publishTime,
+            n.cover,
+            n.user_id AS userId,
+            u.name AS userName,
+            u.avatar AS userAvatar,
+            (SELECT COUNT(*) FROM news_collect c2 WHERE c2.news_id = n.id) AS collectCount
+        FROM news_collect c
+        JOIN news n ON c.news_id = n.id
+        LEFT JOIN user u ON n.user_id = u.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.id DESC
+        LIMIT #{offset},#{size}
+    """)
+    List<NewsVO> selectCollectList(
+            @Param("userId") Integer userId,
+            @Param("offset") Integer offset,
+            @Param("size") Integer size
+    );
+
+    @Select("SELECT COUNT(*) FROM news_collect WHERE user_id = #{userId}")
+    Long countCollect(@Param("userId") Integer userId);
+
+    @Select("SELECT COUNT(*) FROM news_collect WHERE news_id = #{newsId}")
+    Long countCollectByNewsId(@Param("newsId") Integer newsId);
 }
 
 

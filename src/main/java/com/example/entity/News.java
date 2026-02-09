@@ -19,11 +19,15 @@ public class News {
 
     private String comments;
 
-    private String likes;
+    private Integer likes;
 
     private String publishTime;
 
     private String cover;
 
     private Integer userId;
+
+    private String userName;
+
+    private String userAvatar;
 }

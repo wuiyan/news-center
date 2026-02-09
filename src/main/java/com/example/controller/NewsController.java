@@ -100,6 +100,18 @@ public class NewsController {
         return Result.ok(newsService.getMyWorks(userId, page, size));
     }
 
+    /**
+     * 我的收藏列表
+     */
+    @GetMapping("/collect/list")
+    public Result getCollectList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        return Result.ok(newsService.getCollectList(userId, page, size));
+    }
+
 }
 
 

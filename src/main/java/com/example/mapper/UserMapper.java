@@ -28,8 +28,13 @@ public interface UserMapper {
         update user
         set name = #{name},
             email = #{email},
-            password = #{password}
+            password = #{password},
+            avatar = #{avatar}
         where id = #{id}
     """)
     int updateById(User user);
+
+    // 更新头像
+    @Update("update user set avatar = #{avatar} where id = #{id}")
+    int updateAvatar(@Param("id") Integer id, @Param("avatar") String avatar);
 }

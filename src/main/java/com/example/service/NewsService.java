@@ -27,5 +27,7 @@ public interface NewsService {
     Map<String, Object> getMyWorks(Integer userId, Integer page, Integer size);
 
     void incViewCount(Integer newsId);
+
+    Map<String, Object> getCollectList(Integer userId, Integer page, Integer size);
 }
 

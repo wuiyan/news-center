@@ -25,4 +25,7 @@ public interface NewsCollectMapper {
     """)
     void delete(@Param("userId") Integer userId,
                 @Param("newsId") Integer newsId);
+
+    @Select("SELECT COUNT(*) FROM news_collect WHERE user_id = #{userId}")
+    Long countCollect(@Param("userId") Integer userId);
 }

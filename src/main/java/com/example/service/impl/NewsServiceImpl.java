@@ -40,6 +40,10 @@ public class NewsServiceImpl implements NewsService {
         return 0;
     }
 
+    private int parseViewCount(Integer value) {
+        return value == null ? 0 : value;
+    }
+
     @Autowired
     private NewsMapper newsMapper;
     @Autowired
@@ -111,11 +115,20 @@ public class NewsServiceImpl implements NewsService {
         detail.setCover(news.getCover());
         detail.setViewCount(parseViewCount(news.getViews()));
         detail.setLikes(parseViewCount(news.getLikes()));
+        detail.setUserId(news.getUserId());
+        detail.setUserName(news.getUserName());
+        detail.setUserAvatar(news.getUserAvatar());
+        System.out.println("原始publishTime: " + news.getPublishTime());
         if (news.getPublishTime() != null && !news.getPublishTime().isEmpty()) {
             try {
-                detail.setCreateTime(LocalDateTime.parse(news.getPublishTime(), DateTimeFormatter.ISO_DATE_TIME));
+                detail.setPublishTime(LocalDateTime.parse(news.getPublishTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             } catch (Exception e) {
-                detail.setCreateTime(null);
+                try {
+                    detail.setPublishTime(LocalDateTime.parse(news.getPublishTime(), DateTimeFormatter.ISO_DATE_TIME));
+                } catch (Exception e2) {
+                    System.out.println("时间解析失败: " + e2.getMessage());
+                    detail.setPublishTime(null);
+                }
             }
         }
 
@@ -124,6 +137,9 @@ public class NewsServiceImpl implements NewsService {
 
         Integer collectCount = newsCollectMapper.count(userId, id);
         detail.setIsCollected(collectCount > 0);
+
+        Long totalCollectCount = newsMapper.countCollectByNewsId(id);
+        detail.setCollectCount(totalCollectCount != null ? totalCollectCount.intValue() : 0);
 
         return detail;
     }
@@ -165,7 +181,7 @@ public class NewsServiceImpl implements NewsService {
         news.setCategory(request.getCategory());
         news.setSummary(request.getSummary());
         news.setViews("0");
-        news.setLikes("0");
+        news.setLikes(0);
         news.setComments("0");
         newsMapper.insert(news);
     }
@@ -194,6 +210,18 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public void incViewCount(Integer newsId) {
         newsMapper.addView(newsId);
+    }
+
+    @Override
+    public Map<String, Object> getCollectList(Integer userId, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<NewsVO> list = newsMapper.selectCollectList(userId, offset, size);
+        Long total = newsMapper.countCollect(userId);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", total);
+        map.put("list", list);
+        return map;
     }
 
 }

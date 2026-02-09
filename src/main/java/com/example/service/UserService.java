@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.entity.User;
+import com.example.mapper.NewsCollectMapper;
 import com.example.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 
@@ -8,9 +9,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserMapper userMapper;
+    private final NewsCollectMapper newsCollectMapper;
 
-    public UserService(UserMapper userMapper){
+    public UserService(UserMapper userMapper, NewsCollectMapper newsCollectMapper){
         this.userMapper = userMapper;
+        this.newsCollectMapper = newsCollectMapper;
     }
 
     // 登录
@@ -63,6 +66,16 @@ public class UserService {
         }
 
         return userMapper.updateById(user) > 0;
+    }
+
+    // 更新头像
+    public void updateAvatar(Integer id, String avatar) {
+        userMapper.updateAvatar(id, avatar);
+    }
+
+    // 获取收藏数
+    public Long getCollectCount(Integer userId) {
+        return newsCollectMapper.countCollect(userId);
     }
 
 }
